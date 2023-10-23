@@ -1,0 +1,15 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          workload_identity_provider: projects/912487971903/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider
+          service_account: github-actions@shogo82148-7b957.iam.gserviceaccount.com
