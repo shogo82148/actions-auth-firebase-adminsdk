@@ -39,6 +39,8 @@ runs:
         service_account: ${{ inputs.service_account }}
         audience: ${{ inputs.audience }}
         export_environment_variables: false
+
+    # inspired by https://gist.github.com/dylanenabled/5fd0128afe362343cf2a8e9628c4218e
     - name: Create a temporary key
       shell: bash
       env:
@@ -46,6 +48,8 @@ runs:
         GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_json }}
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
       run: |
+        gcloud config set project "${GOOGLE_CLOUD_PROJECT}"
+
         TEMP_DIR=$(mktemp -d)
         openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout "$TEMP_DIR/private_key.pem" -out "$TEMP_DIR/public_key.pem" -subj "/CN=unused"
         gcloud iam service-accounts keys upload "$TEMP_DIR/public_key.pem" --iam-account="${SERVICE_ACCOUNT}" --format json > "$TEMP_DIR/uploaded_key.json"
