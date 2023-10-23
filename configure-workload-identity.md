@@ -1,9 +1,28 @@
+Create a service account for GitHub OIDC federation.
+
 ```console
 gcloud iam service-accounts create "${SERVICE_ACCOUNT_NAME}" --project "${PROJECT_ID}"
 ```
 
+`iam.serviceAccountKeys.create` permission is required for uploading public keys.
+`roles/iam.serviceAccountKeyAdmin` (Service Account Key Admin) role can do this.
+
+```console
+gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+    --role="roles/iam.serviceAccountKeyAdmin" \
+    --member="serviceAccount:${SERVICE_ACCOUNT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+```
+
+Enables the service required for GitHub OIDC federation.
+
 ```console
 gcloud services enable iamcredentials.googleapis.com --project "${PROJECT_ID}"
+```
+
+`iam.googleapis.com` is required for uploading public keys.
+
+```console
+gcloud services enable iam.googleapis.com --project "${PROJECT_ID}"
 ```
 
 ```console
