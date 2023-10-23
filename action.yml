@@ -42,12 +42,13 @@ runs:
     - name: Create a temporary key
       shell: bash
       env:
+        GOOGLE_CLOUD_PROJECT: ${{ steps.auth.outputs.project_id }}
         GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_json }}
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
       run: |
         TEMP_DIR=$(mktemp -d)
         openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout "$TEMP_DIR/private_key.pem" -out "$TEMP_DIR/public_key.pem" -subj "/CN=unused"
-        gcloud iam service-accounts keys upload "$TEMP_DIR/public_key.pem" --iam-account=${SERVICE_ACCOUNT} --format json > "$TEMP_DIR/uploaded_key.json"
+        gcloud iam service-accounts keys upload "$TEMP_DIR/public_key.pem" --iam-account="${SERVICE_ACCOUNT}" --format json > "$TEMP_DIR/uploaded_key.json"
         cat "$TEMP_DIR/uploaded_key.json"
 
 branding:
