@@ -40,6 +40,7 @@ runs:
         audience: ${{ inputs.audience }}
         export_environment_variables: false
     - name: Create a temporary key
+      shell: bash
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_json }}
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
