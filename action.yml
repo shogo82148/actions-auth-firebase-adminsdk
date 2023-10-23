@@ -1,0 +1,54 @@
+name: "actions-auth-firebase-adminsdk"
+description: "Use google workload identity to run firebase adminsdk script"
+author: "ICHINOSE Shogo"
+
+inputs:
+  workload_identity_provider:
+    description: |-
+      The full identifier of the Workload Identity Provider, including the
+      project number, pool name, and provider name. If provided, this must be
+      the full identifier which includes all parts, for example:
+      "projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider".
+      This is mutually exclusive with "credentials_json".
+    required: true
+  service_account:
+    description: |-
+      Email address or unique identifier of the Google Cloud service account for
+      which to generate credentials. This is required if
+      "workload_identity_provider" is specified.
+    required: true
+  audience:
+    description: |-
+      The value for the audience (aud) parameter in GitHub's generated OIDC
+      token. This value defaults to the value of "workload_identity_provider",
+      which is also the default value Google Cloud expects for the audience
+      parameter on the token.
+    default: ""
+    required: false
+
+outputs: {}
+
+runs:
+  using: "composite"
+  steps:
+    - id: auth
+      name: authorize using the Workload Identity Provider
+      uses: google-github-actions/auth@v1
+      with:
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}
+        audience: ${{ inputs.audience }}
+        export_environment_variables: false
+    - name: Create a temporary key
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_json }}
+        SERVICE_ACCOUNT: ${{ inputs.service_account }}
+      run: |
+        TEMP_DIR=$(mktemp -d)
+        openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout "$TEMP_DIR/private_key.pem" -out "$TEMP_DIR/public_key.pem" -subj "/CN=unused"
+        gcloud iam service-accounts keys upload "$TEMP_DIR/public_key.pem" --iam-account=${SERVICE_ACCOUNT} --format json > "$TEMP_DIR/uploaded_key.json"
+        cat "$TEMP_DIR/uploaded_key.json"
+
+branding:
+  icon: "edit"
+  color: "gray-dark"
