@@ -38,14 +38,11 @@ runs:
         workload_identity_provider: ${{ inputs.workload_identity_provider }}
         service_account: ${{ inputs.service_account }}
         audience: ${{ inputs.audience }}
-        export_environment_variables: false
 
     # inspired by https://gist.github.com/dylanenabled/5fd0128afe362343cf2a8e9628c4218e
     - name: Create a temporary key
       shell: bash
       env:
-        GOOGLE_CLOUD_PROJECT: ${{ steps.auth.outputs.project_id }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_json }}
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
       run: |
         gcloud config set project "${GOOGLE_CLOUD_PROJECT}"
