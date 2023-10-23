@@ -45,10 +45,34 @@ runs:
       env:
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
       run: |
+        set -uexo pipefail
+        # create a temporary key
         TEMP_DIR=$(mktemp -d)
         openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout "$TEMP_DIR/private_key.pem" -out "$TEMP_DIR/public_key.pem" -subj "/CN=unused"
+
+        # upload the public key
         gcloud iam service-accounts keys upload "$TEMP_DIR/public_key.pem" --iam-account="${SERVICE_ACCOUNT}" --format json > "$TEMP_DIR/uploaded_key.json"
-        cat "$TEMP_DIR/uploaded_key.json"
+        GCLOUD_PRIVATE_KEY_NAME=$(jq -r '.name | split("/") | last' "$TEMP_DIR/uploaded_key.json")
+        export GCLOUD_PRIVATE_KEY_NAME
+        GCLOUD_CLIENT_ID=$(gcloud iam service-accounts describe $SERVICE_ACCOUNT --format 'value(uniqueId)')
+        export GCLOUD_CLIENT_ID
+
+        # create a credentials.json
+        touch "$TEMP_DIR/credentials.json"
+        chmod 600 "$TEMP_DIR/credentials.json"
+        cat "$TEMP_DIR/private_key.pem" | jq --raw-input --slurp '{
+          type: "service_account",
+          project_id: env.GOOGLE_CLOUD_PROJECT,
+          private_key_id: env.GCLOUD_PRIVATE_KEY_NAME,
+          private_key: .,
+          client_email: env.SERVICE_ACCOUNT,
+          client_id: env.GCLOUD_CLIENT_ID,
+          auth_uri: "https://accounts.google.com/o/oauth2/auth",
+          token_uri: "https://oauth2.googleapis.com/token",
+          auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+          client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/\(env.SERVICE_ACCOUNT | @uri)"
+        }' > "$TEMP_DIR/credentials.json"
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$TEMP_DIR/credentials.json" >> "$GITHUB_ENV"
 
 branding:
   icon: "edit"
