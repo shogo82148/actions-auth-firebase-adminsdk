@@ -45,8 +45,6 @@ runs:
       env:
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
       run: |
-        gcloud config set project "${GOOGLE_CLOUD_PROJECT}"
-
         TEMP_DIR=$(mktemp -d)
         openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout "$TEMP_DIR/private_key.pem" -out "$TEMP_DIR/public_key.pem" -subj "/CN=unused"
         gcloud iam service-accounts keys upload "$TEMP_DIR/public_key.pem" --iam-account="${SERVICE_ACCOUNT}" --format json > "$TEMP_DIR/uploaded_key.json"
