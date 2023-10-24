@@ -1,0 +1,14 @@
+{
+  "name": "actions-auth-firebase-adminsdk",
+  "version": "1.0.0",
+  "description": "Test project for actions-auth-firebase-adminsdk",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "node index.mjs"
+  },
+  "author": "ICHINOSE Shogo",
+  "license": "ISC",
+  "dependencies": {
+    "firebase-admin": "^11.11.0"
+  }
+}

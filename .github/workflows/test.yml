@@ -16,3 +16,9 @@ jobs:
         with:
           workload_identity_provider: projects/912487971903/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider
           service_account: github-actions@shogo82148-7b957.iam.gserviceaccount.com
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm test
