@@ -76,9 +76,11 @@ runs:
           auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
           client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/\(env.SERVICE_ACCOUNT | @uri)"
         }' > "$TEMP_DIR/credentials.json"
+
+        # set environment variables
         echo "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE=$TEMP_DIR/credentials.json" >> "$GITHUB_ENV"
         echo "GOOGLE_APPLICATION_CREDENTIALS=$TEMP_DIR/credentials.json" >> "$GITHUB_ENV"
-        echo "GOOGLE_GHA_CREDS_PATH=$TEMP_DIR/credentials.json" >> "$GITHUB_ENV
+        echo "GOOGLE_GHA_CREDS_PATH=$TEMP_DIR/credentials.json" >> "$GITHUB_ENV"
 
     - name: clean up
       uses: shogo82148/actions-post-run@v1
