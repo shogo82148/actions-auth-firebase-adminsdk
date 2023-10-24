@@ -40,20 +40,24 @@ runs:
         audience: ${{ inputs.audience }}
 
     # inspired by https://gist.github.com/dylanenabled/5fd0128afe362343cf2a8e9628c4218e
-    - name: Create a temporary key
+    - id: create-key
+      name: Create a temporary key
       shell: bash
       env:
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
       run: |
         set -uexo pipefail
+
         # create a temporary key
         TEMP_DIR=$(mktemp -d)
+        echo "credentials_dir=$TEMP_DIR" >> "$GITHUB_OUTPUT"
         openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout "$TEMP_DIR/private_key.pem" -out "$TEMP_DIR/public_key.pem" -subj "/CN=unused"
 
         # upload the public key
         gcloud iam service-accounts keys upload "$TEMP_DIR/public_key.pem" --iam-account="${SERVICE_ACCOUNT}" --format json > "$TEMP_DIR/uploaded_key.json"
         GCLOUD_PRIVATE_KEY_NAME=$(jq -r '.name | split("/") | last' "$TEMP_DIR/uploaded_key.json")
         export GCLOUD_PRIVATE_KEY_NAME
+        echo "gcloud_private_key_name=$GCLOUD_PRIVATE_KEY_NAME" >> "$GITHUB_OUTPUT"
         GCLOUD_CLIENT_ID=$(gcloud iam service-accounts describe $SERVICE_ACCOUNT --format 'value(uniqueId)')
         export GCLOUD_CLIENT_ID
 
@@ -73,6 +77,19 @@ runs:
           client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/\(env.SERVICE_ACCOUNT | @uri)"
         }' > "$TEMP_DIR/credentials.json"
         echo "GOOGLE_APPLICATION_CREDENTIALS=$TEMP_DIR/credentials.json" >> "$GITHUB_ENV"
+
+    - name: clean up
+      uses: shogo82148/actions-post-run@v1
+      env:
+        SERVICE_ACCOUNT: ${{ inputs.service_account }}
+        TEMP_DIR: ${{ steps.create-key.outputs.credentials_dir }}
+        GCLOUD_PRIVATE_KEY_NAME: ${{ steps.create-key.outputs.gcloud_private_key_name }}
+      with:
+        post: |
+          set -uexo pipefail
+
+          rm -rf "$TEMP_DIR"
+          gcloud iam service-accounts keys delete ${GCLOUD_PRIVATE_KEY_NAME} --iam-account=${SERVICE_ACCOUNT}
 
 branding:
   icon: "edit"
