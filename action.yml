@@ -88,15 +88,12 @@ runs:
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
         TEMP_DIR: ${{ steps.create-key.outputs.credentials_dir }}
         GCLOUD_PRIVATE_KEY_NAME: ${{ steps.create-key.outputs.gcloud_private_key_name }}
-        CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ${{ steps.auth.outputs.credentials_file }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file }}
-        GOOGLE_GHA_CREDS_PATH: ${{ steps.auth.outputs.credentials_file }}
       with:
         post: |
           set -uexo pipefail
 
-          rm -rf "$TEMP_DIR"
           gcloud iam service-accounts keys delete ${GCLOUD_PRIVATE_KEY_NAME} --iam-account=${SERVICE_ACCOUNT} --quiet
+          rm -rf "$TEMP_DIR"
 
 branding:
   icon: "edit"
