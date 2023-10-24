@@ -33,7 +33,7 @@ runs:
   steps:
     - id: auth
       name: authorize using the Workload Identity Provider
-      uses: google-github-actions/auth@v1
+      uses: google-github-actions/auth@e8df18b60c5dd38ba618c121b779307266153fbf # v1.1.0
       with:
         workload_identity_provider: ${{ inputs.workload_identity_provider }}
         service_account: ${{ inputs.service_account }}
@@ -83,7 +83,7 @@ runs:
         echo "GOOGLE_GHA_CREDS_PATH=$TEMP_DIR/credentials.json" >> "$GITHUB_ENV"
 
     - name: clean up
-      uses: shogo82148/actions-post-run@v1
+      uses: shogo82148/actions-post-run@31b26ef20972dfeff5d6cea16d940cf6c36f7a2f # v1.0.0
       env:
         SERVICE_ACCOUNT: ${{ inputs.service_account }}
         TEMP_DIR: ${{ steps.create-key.outputs.credentials_dir }}
