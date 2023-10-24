@@ -89,7 +89,7 @@ runs:
           set -uexo pipefail
 
           rm -rf "$TEMP_DIR"
-          gcloud iam service-accounts keys delete ${GCLOUD_PRIVATE_KEY_NAME} --iam-account=${SERVICE_ACCOUNT}
+          gcloud iam service-accounts keys delete ${GCLOUD_PRIVATE_KEY_NAME} --iam-account=${SERVICE_ACCOUNT} --quiet
 
 branding:
   icon: "edit"
