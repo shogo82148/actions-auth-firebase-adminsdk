@@ -9,6 +9,6 @@
   "author": "ICHINOSE Shogo",
   "license": "ISC",
   "dependencies": {
-    "firebase-admin": "^11.11.0"
+    "firebase-admin": "^11.11.1"
   }
 }
