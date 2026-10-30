@@ -11,13 +11,13 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./
+      - uses: actions/checkout@v4.4.0
+      - uses: $/
         with:
           workload_identity_provider: projects/912487971903/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider
           service_account: github-actions@shogo82148-7b957.iam.gserviceaccount.com
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4.4.0
         with:
           node-version: "20"
       - run: npm ci
